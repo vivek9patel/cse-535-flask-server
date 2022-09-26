@@ -1,4 +1,5 @@
 import pyrebase
+from helpers.datetime import getCurrentTimeStamp
 from models.category import Category
 from models.image import Image
 import json
