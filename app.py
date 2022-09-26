@@ -15,8 +15,9 @@ def root():
 @app.route('/upload_image', methods=['POST'])
 def uploadImage():
     try:
-        image = request.files.get('image')
-        category = request.form.get('category')
+        data = request.get_json()
+        image = data['image']
+        category = data['category']
         category_id = db_ref['category'].create(category)
         imageURL = db_ref['image'].create(image, category_id)
         if imageURL:

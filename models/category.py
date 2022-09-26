@@ -7,23 +7,26 @@ class Category:
     
     def create(self, category_name):
         try:
+            category_name = category_name.lower()
             categoryID = self.findCategoryId(category_name)
-            if categoryID == True:
-                categoryID = self.db.generate_key()
-                self.db.child(self.root).child(categoryID).set({
-                    "name": category_name,
-                    "count": 1,
-                    "created_at": getCurrentTimeStamp(),
-                    "updated_at": getCurrentTimeStamp()
-                })
-            elif categoryID == False:
-               raise Exception("Aborted!")
-            else:
+            print(categoryID, isinstance(categoryID,str))
+            if isinstance(categoryID,str):
                 existingCount = self.db.child(self.root).child(categoryID).child("count").get().val()
                 self.db.child(self.root).child(categoryID).update({
                     "count": int(existingCount) + 1,
                     "updated_at": getCurrentTimeStamp()
                 })
+            elif categoryID == True:
+                categoryID = self.db.generate_key()
+                self.db.child(self.root).child(categoryID).set({
+                    "name": category_name.lower(),
+                    "count": 1,
+                    "created_at": getCurrentTimeStamp(),
+                    "updated_at": getCurrentTimeStamp()
+                })
+            else:
+               raise Exception("Aborted!")
+                
             return categoryID
         except Exception as e:
             print("Category.py (create) => ", e)
