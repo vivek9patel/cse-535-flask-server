@@ -17,8 +17,8 @@ def uploadImage():
     try:
         image = request.files.get('image')
         category = request.form.get('category')
-        # category_id = db_ref['category'].create(category)
-        imageURL = db_ref['image'].create(image, "-NCrS1jJOFGTJWNc-uy6")
+        category_id = db_ref['category'].create(category)
+        imageURL = db_ref['image'].create(image, category_id)
         if imageURL:
             return jsonify({"success": True, "message":"Success", "imageURL": imageURL}), 200
         else:
