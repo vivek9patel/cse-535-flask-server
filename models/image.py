@@ -7,10 +7,10 @@ class Image:
         self.db = firebase.database()
         self.root = "images"
 
-    def create(self, image, category_id):
+    def create(self, image, category_id, category):
         try:
-            if image and category_id:
-                result = self.uploadImage(image)
+            if image and category_id and category:
+                result = self.uploadImage(image, category)
                 if result:
                     self.db.child(self.root).push({
                         "image_url": result,
@@ -25,15 +25,15 @@ class Image:
             print("Image.py (create) => ", e)
             return None
 
-    def uploadImage(self, image):
+    def uploadImage(self, image, category):
         try:
             filename = "image"+self.db.generate_key()
             if isinstance(image,str):
                 image = base64.b64decode(image)
             elif image.filename:
                 filename = image.filename+self.db.generate_key()
-            self.storage.child("Images").child(filename).put(image)
-            return self.storage.child("Images").child(filename).get_url(None)
+            self.storage.child("Images").child(category).child(filename).put(image)
+            return self.storage.child("Images").child(category).child(filename).get_url(None)
         except Exception as e:
             print("Image.py (uploadImage) => ", e)
             return None

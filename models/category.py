@@ -9,7 +9,6 @@ class Category:
         try:
             category_name = category_name.lower()
             categoryID = self.findCategoryId(category_name)
-            print(categoryID, isinstance(categoryID,str))
             if isinstance(categoryID,str):
                 existingCount = self.db.child(self.root).child(categoryID).child("count").get().val()
                 self.db.child(self.root).child(categoryID).update({

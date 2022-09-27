@@ -19,7 +19,7 @@ def uploadImage():
         image = data['image']
         category = data['category']
         category_id = db_ref['category'].create(category)
-        imageURL = db_ref['image'].create(image, category_id)
+        imageURL = db_ref['image'].create(image, category_id, category)
         if imageURL:
             return jsonify({"success": True, "message":"Success", "imageURL": imageURL}), 200
         else:
