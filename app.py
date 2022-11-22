@@ -5,6 +5,7 @@ import helpers.digit_model as digitModel
 
 port = int(os.environ.get('PORT', 8080))
 app = Flask(__name__)
+digitModel.loadNetwork()
 
 @app.route('/', methods=['GET'])
 def root():
@@ -36,5 +37,4 @@ def predictDigit():
 
 
 if __name__ == '__main__':
-    digitModel.loadNetwork()
     app.run(threaded=True, host='0.0.0.0', port=port)
