@@ -79,6 +79,7 @@ def process_image(image):
 
 def predict(image):
     image_array = process_image(image)
+    print("model",model)
     predict_value = model.predict([image_array])[0]
     digit = np.argmax(predict_value)
     return str(digit)
