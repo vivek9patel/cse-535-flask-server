@@ -14,7 +14,7 @@ BASE_WIDTH = 28
 
 def loadNetwork():
     global model
-    model = tf.keras.models.load_model('https://storage.googleapis.com/smooth-helper-360323_cloudbuild/first_mod.h5')
+    model = tf.keras.models.load_model('trained-model/first_mod.h5')
     return model
 
 def getBestShift(img):
