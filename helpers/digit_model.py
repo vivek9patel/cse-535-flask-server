@@ -82,3 +82,16 @@ def predict(image):
     predict_value = model.predict([image_array])[0]
     digit = np.argmax(predict_value)
     return str(digit)
+
+
+def predictTop(image):
+    return str(0)
+
+def predictBottom(image):
+    return str(0)
+
+def predictLeft(image):
+    return str(0)
+
+def predictRight(image):
+    return str(0)

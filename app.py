@@ -14,6 +14,30 @@ def root():
     except Exception as e:
         return f"An Error Occured: {e}"
 
+@app.route('/predict_portion', methods=['POST'])
+def predictPortionImage():
+    try:
+        data = request.get_json()
+        image = data['image']
+        portion = data['portion']
+        process = data['currentProcess']
+        predictedDigit = 0
+        if portion == "top":
+            predictedDigit = digitModel.predictTop(image)
+        elif portion == "bottom":
+            predictedDigit = digitModel.predictBottom(image)
+        elif portion == "left":
+            predictedDigit = digitModel.predictLeft(image)
+        elif portion == "right":
+            predictedDigit = digitModel.predictRight(image)
+        else:
+            return jsonify({"success": False, "message":"Invalid Portion!"}), 400
+        db_ref['process'].setPrediction(process,portion,predictedDigit)
+        return jsonify({"success": True,"message":"Success", "predictedDigit": predictedDigit}), 200
+    except Exception as e:
+        print(e)
+        return f"An Error Occured: {e}"
+
 @app.route('/predict_digit', methods=['POST'])
 def predictDigit():
     try:

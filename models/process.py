@@ -29,6 +29,30 @@ class Process:
             print("Process.py (start) => ", e)
             return None
     
+    def setPrediction(self,process,portion,prediction):
+        try:
+            self.db.child(self.root).child(process).child("predictions").child(portion).set(prediction)
+            self.checkAllPrediction(process)
+            return True
+        except Exception as e:
+            print("Process.py (setPrediction) => ", e)
+            return False
+    
+    def checkAllPrediction(self,process):
+        try:
+            top = self.db.child(self.root).child(process).child("predictions").child("top").get().val()
+            bottom = self.db.child(self.root).child(process).child("predictions").child("bottom").get().val()
+            left = self.db.child(self.root).child(process).child("predictions").child("left").get().val()
+            right = self.db.child(self.root).child(process).child("predictions").child("right").get().val()
+            if top != -1 and bottom != -1 and left != -1 and right != -1:
+                self.setState("photosPredicted")
+                return True
+            else:
+                return False
+        except Exception as e:
+            print("Process.py (checkAllPrediction) => ", e)
+            return False
+
     def setProcessNumber(self, number):
        self.db.child(self.root).child("process_info").child("currentProcess").set(number)
 
@@ -60,11 +84,35 @@ class Process:
             
             topURL, bottomURL, leftURL, rightURL = self.uploadImagesInProcess(currentProcess,top_encode,bottom_encode,left_encode,right_encode)
             if topURL and bottomURL and leftURL and rightURL:
+                self.saveURLs(currentProcess,topURL,bottomURL,leftURL,rightURL)
+                self.initPredictionValues(currentProcess)
                 return True
             else:
                 return False
         except Exception as e:
             print("Process.py (upload4Image) => ", e)
+            return False
+
+    def initPredictionValues(self,process):
+        try:
+            self.db.child(self.root).child(process).child("predictions").child("top").set(-1)
+            self.db.child(self.root).child(process).child("predictions").child("bottom").set(-1)
+            self.db.child(self.root).child(process).child("predictions").child("left").set(-1)
+            self.db.child(self.root).child(process).child("predictions").child("right").set(-1)
+            return True
+        except Exception as e:
+            print("Process.py (initPredictionValues) => ", e)
+            return False
+
+    def saveURLs(self,process,topURL,bottomURL,leftURL,rightURL):
+        try:
+            self.db.child(self.root).child(process).child("URLs").child("topURL").set(topURL)
+            self.db.child(self.root).child(process).child("URLs").child("bottomURL").set(bottomURL)
+            self.db.child(self.root).child(process).child("URLs").child("leftURL").set(leftURL)
+            self.db.child(self.root).child(process).child("URLs").child("rightURL").set(rightURL)
+            return True
+        except Exception as e:
+            print("Process.py (saveURLs) => ", e)
             return False
 
     def uploadImagesInProcess(self,process,topb64,bottomb64,leftb64,rightb64):
