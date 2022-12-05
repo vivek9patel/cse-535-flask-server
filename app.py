@@ -20,21 +20,29 @@ def predictDigit():
         # Retriving Data from Client
         data = request.get_json()
         image = data['image']
-        # Predicting Digit
-        predictedDigit = digitModel.predict(image)
-        print("predictedDigit",predictedDigit)
-        # Saving image in Cloud Database
-        category_id = db_ref['category'].create(predictedDigit)
-        imageURL = db_ref['image'].create(image, category_id, predictedDigit)
-        # Return Image to Client
-        if imageURL:
-            return jsonify({"success": True, "message":"Success", "imageURL": imageURL, "predictedDigit": predictedDigit}), 200
+        # Cut and Store 4 pecies of images
+        top, bottom, left, right = db_ref['image'].cutIntoFourImage(image)
+        # if top!=None and bottom!=None and left!=None and right!=None:
+        # Start process on backend
+        currentProcess = db_ref['process'].start()
+        if currentProcess:
+            # Saving images in Cloud Database to send it through stream
+            isPhotoUploadSuccessful = db_ref['process'].upload4Image(currentProcess,top,bottom,left,right)
+            if isPhotoUploadSuccessful:
+                success = db_ref['process'].setState('photosUploaded')
+                if success:
+                    return jsonify({"success": True, "message":"Success"}), 200
+                else:
+                    return jsonify({"success": False, "message":"Something Went Wrong!"}), 500
+            else:
+                return jsonify({"success": False, "message":"Error in Uploading 4 images!"}), 500
         else:
-            return jsonify({"success": False, "message":"Something Went Wrong!"}), 500
+            return jsonify({"success": False, "message":"Please complete the previous process!"}), 500
+        # else:
+        #     return jsonify({"success": False, "message":"Error in cutting images!"}), 500
     except Exception as e:
         print(e)
         return f"An Error Occured: {e}"
-
 
 if __name__ == '__main__':
     app.run(threaded=True, host='0.0.0.0', port=port)

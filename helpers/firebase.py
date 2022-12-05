@@ -2,6 +2,7 @@ import pyrebase
 from helpers.datetime import getCurrentTimeStamp
 from models.category import Category
 from models.image import Image
+from models.process import Process
 import json
 
 # # Monkey patch pyrebase: replace quote function in pyrebase to workaround a bug.
@@ -30,5 +31,6 @@ firebase  = pyrebase.initialize_app(fbConfig)
 
 db_ref = {
     "image": Image(firebase),
-    "category": Category(firebase)
+    "category": Category(firebase),
+    "process": Process(firebase)
 }

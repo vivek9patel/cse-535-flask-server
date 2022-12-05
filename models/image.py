@@ -1,6 +1,7 @@
 import base64
 from helpers.datetime import getCurrentTimeStamp
-
+import cv2
+import numpy as np
 class Image:
     def __init__(self, firebase):
         self.storage = firebase.storage()
@@ -24,6 +25,33 @@ class Image:
         except Exception as e:
             print("Image.py (create) => ", e)
             return None
+
+    def cutIntoFourImage(self,image):
+        try:
+            if image:
+                image = base64.b64decode(image)
+                # print("1",image)
+                nparr = np.fromstring(image, np.uint8)
+                # print("2",nparr)
+                gray = cv2.imdecode(nparr, cv2.IMREAD_GRAYSCALE)
+                # print("3",gray)
+                h, w = gray.shape
+                
+                half = w//2
+
+                left = gray[:, :half] 
+                right = gray[:, half:] 
+
+                half2 = h//2
+  
+                top = gray[:half2, :]
+                bottom = gray[half2:, :]
+                return top, bottom, left, right
+            else:
+               raise Exception("Image not provided!", image)  
+        except Exception as e:
+            print("Image.py (cutIntoFourImage) => ", e)
+            return None, None, None, None
 
     def uploadImage(self, image, category):
         try:
