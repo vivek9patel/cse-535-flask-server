@@ -22,14 +22,14 @@ def predictPortionImage():
         portion = data['portion']
         process = data['currentProcess']
         predictedDigit = 0
-        if portion == "top":
-            predictedDigit = digitModel.predictTop(image)
-        elif portion == "bottom":
-            predictedDigit = digitModel.predictBottom(image)
-        elif portion == "left":
-            predictedDigit = digitModel.predictLeft(image)
-        elif portion == "right":
-            predictedDigit = digitModel.predictRight(image)
+        if portion == "top_left":
+            predictedDigit = digitModel.predictTopLeft(image)
+        elif portion == "top_right":
+            predictedDigit = digitModel.predictTopRight(image)
+        elif portion == "bottom_left":
+            predictedDigit = digitModel.predictBottomLeft(image)
+        elif portion == "bottom_right":
+            predictedDigit = digitModel.predictBottomRight(image)
         else:
             return jsonify({"success": False, "message":"Invalid Portion!"}), 400
         db_ref['process'].setPrediction(process,portion,predictedDigit)
@@ -45,13 +45,13 @@ def predictDigit():
         data = request.get_json()
         image = data['image']
         # Cut and Store 4 pecies of images
-        top, bottom, left, right = db_ref['image'].cutIntoFourImage(image)
+        tl,tr,bl,br = db_ref['image'].cutIntoFourImage(image)
         # if top!=None and bottom!=None and left!=None and right!=None:
         # Start process on backend
         currentProcess = db_ref['process'].start()
         if currentProcess:
             # Saving images in Cloud Database to send it through stream
-            isPhotoUploadSuccessful = db_ref['process'].upload4Image(currentProcess,top,bottom,left,right)
+            isPhotoUploadSuccessful = db_ref['process'].upload4Image(currentProcess,tl,tr,bl,br)
             if isPhotoUploadSuccessful:
                 success = db_ref['process'].setState('photosUploaded')
                 if success:

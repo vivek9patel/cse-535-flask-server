@@ -30,23 +30,30 @@ class Image:
         try:
             if image:
                 image = base64.b64decode(image)
-                # print("1",image)
                 nparr = np.fromstring(image, np.uint8)
-                # print("2",nparr)
                 gray = cv2.imdecode(nparr, cv2.IMREAD_GRAYSCALE)
-                # print("3",gray)
                 h, w = gray.shape
-                
-                half = w//2
 
-                left = gray[:, :half] 
-                right = gray[:, half:] 
-
+                tr = []
+                tl = []
+                bl = []
+                br = []
                 half2 = h//2
-  
                 top = gray[:half2, :]
                 bottom = gray[half2:, :]
-                return top, bottom, left, right
+                for i in range(top.shape[0]):
+                    tl.append(top[i][:half2])
+                    tr.append(top[i][half2:])
+                for i in range(bottom.shape[0]):
+                    bl.append(bottom[i][:half2])
+                    br.append(bottom[i][half2:])
+                    
+                tl = np.array(tl)
+                tr = np.array(tr)
+                bl = np.array(bl)
+                br = np.array(br)
+                    
+                return tl,tr,bl,br
             else:
                raise Exception("Image not provided!", image)  
         except Exception as e:

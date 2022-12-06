@@ -40,11 +40,11 @@ class Process:
     
     def checkAllPrediction(self,process):
         try:
-            top = self.db.child(self.root).child(process).child("predictions").child("top").get().val()
-            bottom = self.db.child(self.root).child(process).child("predictions").child("bottom").get().val()
-            left = self.db.child(self.root).child(process).child("predictions").child("left").get().val()
-            right = self.db.child(self.root).child(process).child("predictions").child("right").get().val()
-            if top != -1 and bottom != -1 and left != -1 and right != -1:
+            top_left = self.db.child(self.root).child(process).child("predictions").child("top_left").get().val()
+            top_right = self.db.child(self.root).child(process).child("predictions").child("top_right").get().val()
+            bottom_left = self.db.child(self.root).child(process).child("predictions").child("bottom_left").get().val()
+            bottom_right = self.db.child(self.root).child(process).child("predictions").child("bottom_right").get().val()
+            if top_left != -1 and top_right != -1 and bottom_left != -1 and bottom_right != -1:
                 self.setState("photosPredicted")
                 return True
             else:
@@ -70,21 +70,21 @@ class Process:
             print("Process.py (setState) => ", e)
             return False
 
-    def upload4Image(self,currentProcess,top,bottom,left,right):
+    def upload4Image(self,currentProcess,tl,tr,bl,br):
         try:
-            top_encode = cv2.imencode('.png', top)[1]
-            bottom_encode = cv2.imencode('.png', bottom)[1]
-            left_encode = cv2.imencode('.png', left)[1]
-            right_encode = cv2.imencode('.png', right)[1]
+            tl_encode = cv2.imencode('.png', tl)[1]
+            tr_encode = cv2.imencode('.png', tr)[1]
+            bl_encode = cv2.imencode('.png', bl)[1]
+            br_encode = cv2.imencode('.png', br)[1]
             
-            top_encode = top_encode.tobytes()
-            bottom_encode = bottom_encode.tobytes()
-            left_encode = left_encode.tobytes()
-            right_encode = right_encode.tobytes()
+            tl_encode = tl_encode.tobytes()
+            tr_encode = tr_encode.tobytes()
+            bl_encode = bl_encode.tobytes()
+            br_encode = br_encode.tobytes()
             
-            topURL, bottomURL, leftURL, rightURL = self.uploadImagesInProcess(currentProcess,top_encode,bottom_encode,left_encode,right_encode)
-            if topURL and bottomURL and leftURL and rightURL:
-                self.saveURLs(currentProcess,topURL,bottomURL,leftURL,rightURL)
+            tlURL, trURL, blURL, brURL = self.uploadImagesInProcess(currentProcess,tl_encode,tr_encode,bl_encode,br_encode)
+            if tlURL and trURL and blURL and brURL:
+                self.saveURLs(currentProcess,tlURL,trURL,blURL,brURL)
                 self.initPredictionValues(currentProcess)
                 return True
             else:
@@ -95,49 +95,49 @@ class Process:
 
     def initPredictionValues(self,process):
         try:
-            self.db.child(self.root).child(process).child("predictions").child("top").set(-1)
-            self.db.child(self.root).child(process).child("predictions").child("bottom").set(-1)
-            self.db.child(self.root).child(process).child("predictions").child("left").set(-1)
-            self.db.child(self.root).child(process).child("predictions").child("right").set(-1)
+            self.db.child(self.root).child(process).child("predictions").child("top_left").set(-1)
+            self.db.child(self.root).child(process).child("predictions").child("top_right").set(-1)
+            self.db.child(self.root).child(process).child("predictions").child("bottom_left").set(-1)
+            self.db.child(self.root).child(process).child("predictions").child("bottom_right").set(-1)
             return True
         except Exception as e:
             print("Process.py (initPredictionValues) => ", e)
             return False
 
-    def saveURLs(self,process,topURL,bottomURL,leftURL,rightURL):
+    def saveURLs(self,process,tlURL,trURL,blURL,brURL):
         try:
-            self.db.child(self.root).child(process).child("URLs").child("topURL").set(topURL)
-            self.db.child(self.root).child(process).child("URLs").child("bottomURL").set(bottomURL)
-            self.db.child(self.root).child(process).child("URLs").child("leftURL").set(leftURL)
-            self.db.child(self.root).child(process).child("URLs").child("rightURL").set(rightURL)
+            self.db.child(self.root).child(process).child("URLs").child("top_left_URL").set(tlURL)
+            self.db.child(self.root).child(process).child("URLs").child("top_right_URL").set(trURL)
+            self.db.child(self.root).child(process).child("URLs").child("bottom_left_URL").set(blURL)
+            self.db.child(self.root).child(process).child("URLs").child("bottom_right_URL").set(brURL)
             return True
         except Exception as e:
             print("Process.py (saveURLs) => ", e)
             return False
 
-    def uploadImagesInProcess(self,process,topb64,bottomb64,leftb64,rightb64):
+    def uploadImagesInProcess(self,process,tl_encode,tr_encode,bl_encode,br_encode):
         try:
             # Uploading Top Portion of Image
             process = str(process)
-            top_filename = "top_image"
-            self.storage.child("ProcessImages").child(process).child(top_filename).put(topb64)
-            topURL = self.storage.child("ProcessImages").child(process).child(top_filename).get_url(None)
+            top_filename = "top_left_image"
+            self.storage.child("ProcessImages").child(process).child(top_filename).put(tl_encode)
+            tlURL = self.storage.child("ProcessImages").child(process).child(top_filename).get_url(None)
             
             # Uploading Bottom Portion of Image
-            bottom_filename = "bottom_image"
-            self.storage.child("ProcessImages").child(process).child(bottom_filename).put(bottomb64)
-            bottomURL = self.storage.child("ProcessImages").child(process).child(bottom_filename).get_url(None)
+            bottom_filename = "top_right_image"
+            self.storage.child("ProcessImages").child(process).child(bottom_filename).put(tr_encode)
+            trURL = self.storage.child("ProcessImages").child(process).child(bottom_filename).get_url(None)
             
             # Uploading Left Portion of Image
-            left_filename = "left_image"
-            self.storage.child("ProcessImages").child(process).child(left_filename).put(leftb64)
-            leftURL = self.storage.child("ProcessImages").child(process).child(left_filename).get_url(None)
+            left_filename = "bottom_left_image"
+            self.storage.child("ProcessImages").child(process).child(left_filename).put(bl_encode)
+            blURL = self.storage.child("ProcessImages").child(process).child(left_filename).get_url(None)
             
             # Uploading Right Portion of Image
-            right_filename = "right_image"
-            self.storage.child("ProcessImages").child(process).child(right_filename).put(rightb64)
-            rightURL = self.storage.child("ProcessImages").child(process).child(right_filename).get_url(None)
-            return topURL, bottomURL, leftURL, rightURL
+            right_filename = "bottom_right_image"
+            self.storage.child("ProcessImages").child(process).child(right_filename).put(br_encode)
+            brURL = self.storage.child("ProcessImages").child(process).child(right_filename).get_url(None)
+            return tlURL, trURL, blURL, brURL
         except Exception as e:
             print("Process.py (uploadImagesInProcess) => ", e)
             return None
